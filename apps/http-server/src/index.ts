@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '@repo/backend-common/config'
 import { auth } from './middleware/auth'
 import { prisma } from '@repo/db/client'
-import { LoginSchema, SignupSchema } from "@repo/common/schema"
+import { LoginSchema, SignupSchema, RoomSchema } from "@repo/common/schema"
 
 
 const app = express()
@@ -42,6 +42,9 @@ app.post("/signup", async (req, res) => {
                         password: hash
                     }
                 })
+                if (!user) {
+                    throw "user already exists"
+                }
                 const token = jwt.sign({ userId: user.id }, JWT_SECRET)
                 res.status(200).json({ token })
             }
@@ -78,5 +81,23 @@ app.post("/login", async (req, res) => {
 })
 
 app.post("/create-room", auth, async (req, res) => {
-    res.send(200).json({ message: "Hello" })
+    const slug = req.body.slug
+
+    try {
+        if (!req.userId)
+            throw "user id null"
+
+        RoomSchema.parse({ slug })
+        await prisma.room.create({
+            data: {
+                slug,
+                adminId: req.userId
+            }
+        })
+        res.status(200).json({ message: "room created successfully" })
+
+    } catch (e) {
+        console.log(e)
+        res.status(400).json({ message: "slug should be string" })
+    }
 })

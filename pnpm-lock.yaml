@@ -79,9 +79,15 @@ importers:
 
   packages/backend-common:
     dependencies:
+      '@types/ws':
+        specifier: ^8.18.0
+        version: 8.18.0
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
+      ws:
+        specifier: ^8.18.1
+        version: 8.18.1
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
